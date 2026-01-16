@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Mentor assignment: S3 bucket deployed via CloudFormation"
+
+Resources:
+  MentorDemoBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "trent-mentor-s3-${AWS::AccountId}-${AWS::Region}"
