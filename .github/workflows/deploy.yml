@@ -16,15 +16,33 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repo (full history for scanning)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # --- TruffleHog: secret scanning ---
+      - name: TruffleHog (secrets scan)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+
+      # --- Checkov: IaC scanning ---
+      - name: Checkov (IaC scan)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra
+          framework: cloudformation
+          soft_fail: false
+
+      # --- AWS auth (OIDC) ---
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::951138415960:role/GitHubActions-DeployS3
           aws-region: us-east-1
 
+      # --- Deploy ---
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
