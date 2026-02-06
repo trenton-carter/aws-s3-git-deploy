@@ -2,6 +2,24 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "Mentor assignment: S3 bucket deployed via CloudFormation + security controls"
 
 Resources:
+# Bucket to receive access logs for the AccessLogsBucket (prevents logging loop)
+  LogsOfLogsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "trent-mentor-s3-logs-of-logs-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+  
   # Bucket to receive server access logs
   AccessLogsBucket:
     Type: AWS::S3::Bucket
